@@ -54,7 +54,73 @@ class Player {
     }
 }
 
+class Projectile {
+    constructor({position, velocity}){
+        this.position = position
+        this.velocity = velocity
+
+        this.radius = 3
+    }
+    draw() {
+        c.beginPath() 
+        c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2)
+        c.fillStyle = 'red'
+        c.fill()
+        c.closePath()
+    }
+
+    update() {
+        this.draw()
+        this.position.x += this.velocity.x
+        this.position.y += this.velocity.y
+    }
+}
+
+
+class Invader {
+    constructor() {
+        this.velocity = {
+            x: 0,
+            y: 0
+        }
+
+      
+
+        const image = new Image()
+        image.src = './assets/img/amogus.png'
+        image.onload = () => {
+            const scale = 1
+            this.image = image
+            this.width = image.width * scale
+            this.height = image.height * scale
+            this.position = {
+                x: canvas.width / 2 - this.width / 2,
+                y: canvas.height / 2
+            }
+        }
+
+    }
+
+    draw() {
+        // c.fillStyle = 'red'
+        // c.fillRect(this.position.x, this.position.y, this.width, this.height)
+
+        c.drawImage(this.image, this.position.x, this.position.y, 
+            this.width, this.height)
+    } 
+
+    update() {
+        if (this.image) {
+        this.draw()
+        this.position.x += this.velocity.x
+        this.position.y += this.velocity.y
+        }
+    }
+}
+
 const player = new Player()
+const projectiles = []
+const invader = new Invader()
 const keys = {
     a: {
         pressed: false
@@ -71,15 +137,22 @@ function animate() {
     requestAnimationFrame(animate)
     c.fillStyle = 'black'
     c.fillRect(0, 0, canvas.width, canvas.height)
+    invader.update()
     player.update()
+    projectiles.forEach(Projectile => {
+        
+        Projectile.update()
+    })
     
     if (keys.a.pressed && player.position.x >= 0) {
         player.velocity.x = -7
-        player.rotation = -.15
+        player.rotation = -0.15
     } else if (keys.d.pressed &&  player.position.x +player.width <= canvas.width) {
         player.velocity.x = 7
+        player.rotation = 0.15
     } else {
         player.velocity.x = 0
+        player.rotation = 0
     }
 }
 
@@ -98,6 +171,17 @@ addEventListener('keydown', ({key}) =>{
                 break
                 case ' ':
                     console.log('space')
+                    projectiles.push(new Projectile({
+                        position: {
+                            x: player.position.x + player.width / 2,
+                            y: player.position.y
+                        },
+                        velocity: {
+                            x: 0,
+                            y: -10
+                        }
+                    }))
+                    console.log(projectile)
                     break
             
     }
