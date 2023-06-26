@@ -1,3 +1,4 @@
+const scoreEl = document.querySelector('#scoreEl')
 const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
 
@@ -35,6 +36,7 @@ class Player {
         // c.fillRect(this.position.x, this.position.y, this.width, this.height)
 
         c.save()
+        c.globalAlpha = this.opacity
         c.translate(player.position.x + player.width / 2, player.position.y + player.height / 2)
 
         c.rotate(this.rotation)
@@ -250,8 +252,9 @@ let frames = 0
 let randomInterval = Math.floor(Math.random() * 500) + 500
 let game = {
     over: false,
-    active: false
+    active: true
 }
+let score = 0
 function createParticles({object, color}) {
     for (let i = 0; i < 15; i++) {
         particles.push(new Particle({
@@ -271,7 +274,7 @@ function createParticles({object, color}) {
 
 
 
-console.log(randomInterval)
+// console.log(randomInterval)
 
 for (let i = 0; i < 100; i++) {
     particles.push(
@@ -312,6 +315,7 @@ for (let i = 0; i < 100; i++) {
   
 
 function animate() {
+    if  (!game.active) return
     requestAnimationFrame(animate)
     c.fillStyle = 'black'
     c.fillRect(0, 0, canvas.width, canvas.height)
@@ -347,9 +351,15 @@ function animate() {
                     setTimeout(() => {
                         invaderProjectiles.splice(index, 1)
                         player.opacity = 0
-                        Game.over = true
+                        game.over = true
                     }, 0)
-                    console.log('you lose')
+
+
+                    setTimeout(() => {
+                     game.active = false
+                    }, 2000)
+
+                    // console.log('you lose')
                     createParticles({
                         object: player,
                         color: 'white'
@@ -394,6 +404,8 @@ function animate() {
                         // remove invader & projectile
 
                         if (invaderFound && projectileFound) {
+                            score += 100
+                            scoreEl.innerHTML = score
                             createParticles({
                                 object: invader
                             })
@@ -427,12 +439,12 @@ function animate() {
         player.velocity.x = 0
         player.rotation = 0
     }
-    console.log(frames)
+    // console.log(frames)
     // spawing invaders
     if (frames % randomInterval === 0) {
         grids.push(new Grid())
         randomInterval = Math.floor(Math.random() * 500) + 500
-        console.log(randomInterval)
+        // console.log(randomInterval)
     }
 
 
@@ -444,6 +456,8 @@ function animate() {
 animate()
 
 addEventListener('keydown', ({ key }) => {
+    if (game.over) return
+
     switch (key) {
         case 'a':
             console.log('left')
